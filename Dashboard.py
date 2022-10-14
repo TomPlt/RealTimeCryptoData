@@ -12,13 +12,13 @@ app = Dash(external_stylesheets = [dbc.themes.CYBORG])
 
 def create_dropdown(option, id_value):
 
-    return html.Div([html.H6(' '.join(id_value.replace('-',' ').split(' ')[:-1]),
+    return html.Div([html.H5(' '.join(id_value.replace('-',' ').split(' ')[:-1]),
                                 style={'padding': '0px 5ßpx 0px 50px'}),
                     dcc.Dropdown(option, id=id_value, value=option[0], style={'width':'100px'})])
 
 
 app.layout = html.Div([
-    html.H2('Interactive Real-Time Crypto Chart', style={'margin':'auto', 'textAlign':'center', 'padding-down':'20px'}),
+    # html.H2('Interactive Real-Time Crypto Chart', style={'margin':'auto', 'textAlign':'center', 'padding-down':'20px'}),
     html.Div([
         create_dropdown(['btcusd', 'ethusd', 'xrpusd'], 'Coin-USD-select'),
         create_dropdown(['60', '3600', '86400'], 'Timeframe-[s]-select'),
@@ -106,4 +106,4 @@ def update_figure(n_intervals, coin_pair, time_frame, num_bars, range_values):
     return candles, indicator
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
