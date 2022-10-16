@@ -9,16 +9,18 @@ import pandas_ta as ta
 import requests
 
 app = Dash(external_stylesheets = [dbc.themes.CYBORG])
+server = app.server
+
 
 def create_dropdown(option, id_value):
 
-    return html.Div([html.H5(' '.join(id_value.replace('-',' ').split(' ')[:-1]),
+    return html.Div([html.H6(' '.join(id_value.replace('-',' ').split(' ')[:-1]),
                                 style={'padding': '0px 5ßpx 0px 50px'}),
                     dcc.Dropdown(option, id=id_value, value=option[0], style={'width':'100px'})])
 
 
 app.layout = html.Div([
-    # html.H2('Interactive Real-Time Crypto Chart', style={'margin':'auto', 'textAlign':'center', 'padding-down':'20px'}),
+    html.H2('Interactive Real-Time Crypto Chart', style={'margin':'auto', 'textAlign':'center', 'padding-down':'20px'}),
     html.Div([
         create_dropdown(['btcusd', 'ethusd', 'xrpusd'], 'Coin-USD-select'),
         create_dropdown(['60', '3600', '86400'], 'Timeframe-[s]-select'),
@@ -51,14 +53,13 @@ def update_Rangeslider(num_bars):
 @app.callback(
         Output('candles', 'figure'),
         Output('indicator', 'figure'),
-        Input('interval', 'n_intervals'),
         Input('Coin-USD-select', 'value'),
         Input('Timeframe-[s]-select', 'value'),
         Input('Number-of-Bars-select', 'value'),
         Input('range-slider', 'value'),
             )
 
-def update_figure(n_intervals, coin_pair, time_frame, num_bars, range_values):
+def update_figure(coin_pair, time_frame, num_bars, range_values):
     url = f'https://www.bitstamp.net/api/v2/ohlc/{coin_pair}/'
 
     params = {
@@ -66,7 +67,7 @@ def update_figure(n_intervals, coin_pair, time_frame, num_bars, range_values):
             # adding 14 because the rsi need a 14 days runup to be displayed
             'limit':int(num_bars)+14,
              }
-    # dictonary of values
+    # dictonary of btc/coin values
     data = requests.get(url, params=params).json()['data']['ohlc']
 
     # Change it to a pd.Dataframe()
@@ -95,15 +96,15 @@ def update_figure(n_intervals, coin_pair, time_frame, num_bars, range_values):
                         ]
                     )
         # updating the layout and design of the figure
-    candles.update_layout(xaxis_rangeslider_visible=False, height=400, template='none'
+    candles.update_layout(xaxis_rangeslider_visible=False, height=400, template='plotly_dark'
                           , title_text='Coin to USD Chart', title_font_size=20, title_x=0.5, yaxis_title="$USD Value")
 
     # creating a indicator graph
     indicator = px.line(x=data.timestamp, y=data.rsi, height=300, title="Relative Strength Index (RSI) Chart"
-                        , labels = {'x':'Date', 'y':'RSI'}, template='none')
+                        , labels = {'x':'Date', 'y':'RSI'}, template='plotly_dark')
     indicator.update_layout(title_font_size=20, title_x=0.5)
 
     return candles, indicator
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
